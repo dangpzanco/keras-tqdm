@@ -5,6 +5,7 @@ import six
 from keras.callbacks import Callback
 from tqdm import tqdm
 
+tqdm.monitor_interval = 0
 
 class TQDMCallback(Callback):
     def __init__(self, outer_description="Training",
@@ -91,7 +92,15 @@ class TQDMCallback(Callback):
             self.mode = 1  # steps
             self.inner_total = self.params['steps']
         if self.show_inner:
-            self.tqdm_inner = self.build_tqdm_inner(desc=desc, total=self.inner_total)
+            if epoch == 0:
+                self.tqdm_inner = self.build_tqdm_inner(desc=desc, total=self.inner_total)
+            else:
+                self.tqdm_inner.set_description(desc)
+                self.tqdm_inner.n = 0
+                self.tqdm_inner.last_print_n = 0
+                self.tqdm_inner.last_print_t = self.tqdm_inner._time()
+                # NB: Avoid race conditions by setting start_t at the very end of init
+                self.tqdm_inner.start_t = self.tqdm_inner.last_print_t
         self.inner_count = 0
         self.running_logs = {}
 
@@ -101,10 +110,15 @@ class TQDMCallback(Callback):
         if self.show_inner:
             self.tqdm_inner.desc = desc
             # set miniters and mininterval to 0 so last update displays
+            tqdm_inner_miniters = self.tqdm_inner.miniters
+            tqdm_inner_mininterval = self.tqdm_inner.mininterval
             self.tqdm_inner.miniters = 0
             self.tqdm_inner.mininterval = 0
             self.tqdm_inner.update(self.inner_total - self.tqdm_inner.n)
-            self.tqdm_inner.close()
+            # Set them back
+            self.tqdm_inner.miniters = tqdm_inner_miniters
+            self.tqdm_inner_mininterval = tqdm_inner_mininterval
+            #self.tqdm_inner.close()
         if self.show_outer:
             self.tqdm_outer.update(1)
 
@@ -133,6 +147,8 @@ class TQDMCallback(Callback):
                                                     total=epochs)
 
     def on_train_end(self, logs={}):
+        if self.show_inner:
+            self.tqdm_inner.close()
         if self.show_outer:
             self.tqdm_outer.close()
 
