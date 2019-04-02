@@ -81,9 +81,8 @@ class TQDMCallback(Callback):
         return self.tqdm(desc=desc, total=total, leave=self.leave_inner)
 
     def on_epoch_begin(self, epoch, logs={}):
-        self.epoch = epoch
-        desc = self.inner_description_initial.format(epoch=self.epoch)
         self.mode = 0  # samples
+
         if 'samples' in self.params:
             self.inner_total = self.params['samples']
         elif 'nb_sample' in self.params:
@@ -92,7 +91,8 @@ class TQDMCallback(Callback):
             self.mode = 1  # steps
             self.inner_total = self.params['steps']
         if self.show_inner:
-            if epoch == 0:
+            desc = self.inner_description_initial.format(epoch=epoch)
+            if self.epoch is None:
                 self.tqdm_inner = self.build_tqdm_inner(desc=desc, total=self.inner_total)
             else:
                 self.tqdm_inner.set_description(desc)
@@ -101,6 +101,8 @@ class TQDMCallback(Callback):
                 self.tqdm_inner.last_print_t = self.tqdm_inner._time()
                 # NB: Avoid race conditions by setting start_t at the very end of init
                 self.tqdm_inner.start_t = self.tqdm_inner.last_print_t
+        
+        self.epoch = epoch
         self.inner_count = 0
         self.running_logs = {}
 
