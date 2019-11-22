@@ -1,8 +1,8 @@
-import keras
+import tensorflow.keras as keras
 import numpy as np
 import pytest
-from keras.layers import Dense
-from keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
 from keras_tqdm import TQDMCallback
 
 
@@ -17,8 +17,8 @@ def fit_generator_test():
 
     def generator():
         while True:
-            idx = np.random.random_integers(0, _x.shape[0] - 1, (32,))
-            yield _x[idx, ...], _y[idx, ...]
+            idx = np.random.randint(0, _x.shape[0], (32,))
+            yield _x[idx,], _y[idx,]
 
     if int(keras.__version__.split(".")[0]) == 2:
         m.fit_generator(generator(), steps_per_epoch=32 * 10, epochs=epochs, verbose=0, callbacks=[TQDMCallback()])
