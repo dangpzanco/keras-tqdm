@@ -1,8 +1,8 @@
-import keras
+import tensorflow.keras as keras
 import numpy as np
 import pytest
-from keras.layers import Dense
-from keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
 from keras_tqdm import TQDMCallback
 
 

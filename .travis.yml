@@ -40,10 +40,6 @@ script:
   - mkdir ~/.keras/datasets
 
   # Run tests
-  - if [[ "$TEST_MODE" == "PEP8" ]]; then
-       PYTHONPATH=$PWD:$PYTHONPATH py.test --pep8 -m pep8;
-    else
-       PYTHONPATH=$PWD:$PYTHONPATH py.test tests/;
-    fi
+  py.test --pep8 -m pep8;
 after_success:
   - coveralls

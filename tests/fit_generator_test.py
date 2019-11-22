@@ -18,7 +18,7 @@ def fit_generator_test():
     def generator():
         while True:
             idx = np.random.randint(0, _x.shape[0], (32,))
-            yield _x[idx,], _y[idx,]
+            yield _x[idx, ], _y[idx, ]
 
     if int(keras.__version__.split(".")[0]) == 2:
         m.fit_generator(generator(), steps_per_epoch=32 * 10, epochs=epochs, verbose=0, callbacks=[TQDMCallback()])
